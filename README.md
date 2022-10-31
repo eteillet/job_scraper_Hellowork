@@ -1,1 +1,1 @@
-# job_scraper_Scrapy
+# job_scraper
