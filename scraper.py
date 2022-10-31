@@ -19,8 +19,10 @@ def get_context(title: list, location: list):
     agent = {"User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:102.0) Gecko/20100101 Firefox/102.0"}
     response = requests.get(url, headers=agent)
     soup = BeautifulSoup(response.content, "html.parser")
-    # nb_pages_soup = soup.find(id="pagin") // get nb of pages
-    # print(nb_pages_soup)
+    nb_pages_soup = soup.find(id="pagin")['data-pagination']# get nb of pages
+    nb = nb_pages_soup[1]
+    # total_offers = nb_pages_soup.find_all(string=re.compile(1))
+    print(nb)
     job_soup = soup.find(class_="crushed content")
     return job_soup
 
@@ -83,7 +85,7 @@ if __name__ == "__main__":
     # titles = input(f"Jobs by default are : {titles_default}\n\t- If you want, you can search for other jobs (separated by a comma) else type Enter:\n\t>> ").split(",")
     # if len(titles) == 1 and titles[0] == '':
     titles = titles_default
-    locations_default = ["Vendee", "Nantes"]
+    locations_default = ["Vendee", "Paris"]
     # locations = input(f"Locations by default are : {locations_default}\n\t- If you want, you can search for other locations (separated by a comma) else type Enter:\n\t>> ").split(",")
     # if len(locations) == 1 and locations[0] == '':
     locations = locations_default
