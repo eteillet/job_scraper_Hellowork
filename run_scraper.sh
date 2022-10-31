@@ -1,0 +1,1 @@
+cd /home/eteillet/Documents/job_scraper_/ && /home/eteillet/miniconda3/bin/python3 scraper.py
