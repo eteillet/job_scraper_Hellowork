@@ -9,20 +9,16 @@ import pandas as pd
 
 RESULT_FILE_PATH='results.json'
 
-def get_context(title: list, location: list):
+def get_context(title: list, location: list, page: int):
     """
     - define the url we want to request (type of job, location ...)
     - get the html content of the page ready to parse
     """
-    get_options = {'k': title, 'l': location, 'c': 'Stage'}
+    get_options = {'k': title, 'l': location, 'c': 'Stage', 'p': page}
     url = 'https://www.hellowork.com/fr-fr/emploi/recherche.html?' + urllib.parse.urlencode(get_options)
-    agent = {"User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:102.0) Gecko/20100101 Firefox/102.0"}
+    agent = {"User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:102.0) Gecko/20100101 Firefox/102.0"}   
     response = requests.get(url, headers=agent)
     soup = BeautifulSoup(response.content, "html.parser")
-    nb_pages_soup = soup.find(id="pagin")['data-pagination']# get nb of pages
-    nb = nb_pages_soup[1]
-    # total_offers = nb_pages_soup.find_all(string=re.compile(1))
-    print(nb)
     job_soup = soup.find(class_="crushed content")
     return job_soup
 
@@ -66,33 +62,22 @@ def scrap_job_informations(soup):
 
 def scrap(titles: list, locations: list):
     data_collected = []
-    # df = pd.DataFrame()
     for title in titles:
         for location in locations:
-            soup = get_context(title, location)
-            jobs = scrap_job_informations(soup)
-            data_collected.extend(jobs)
-            # df = pd.concat([df, pd.DataFrame(jobs)], ignore_index=True)
-    data_collected.sort(key=lambda x: x["date"], reverse=True)
+            page = 1
+            while True:
+                soup = get_context(title, location, page)
+                if soup == None:
+                    break
+                jobs = scrap_job_informations(soup)
+                data_collected.extend(jobs)
+                page += 1
     with open('results.json', 'a') as fp:
         json.dump(data_collected, fp, sort_keys=False, indent=2, ensure_ascii=False)
 
 if __name__ == "__main__":
     if os.path.isfile(RESULT_FILE_PATH):
         os.remove(RESULT_FILE_PATH)
-    # while True:
-    titles_default = ["data", "python"]
-    # titles = input(f"Jobs by default are : {titles_default}\n\t- If you want, you can search for other jobs (separated by a comma) else type Enter:\n\t>> ").split(",")
-    # if len(titles) == 1 and titles[0] == '':
-    titles = titles_default
-    locations_default = ["Vendee", "Paris"]
-    # locations = input(f"Locations by default are : {locations_default}\n\t- If you want, you can search for other locations (separated by a comma) else type Enter:\n\t>> ").split(",")
-    # if len(locations) == 1 and locations[0] == '':
-    locations = locations_default
+    titles = ["data", "python"]
+    locations = ["Vendee", "Nantes"]
     scrap(titles, locations)
-    # reset = input(f"- Do you want to reset the {RESULT_FILE_PATH} file ?  y/n\n\t>> ")
-    # if reset == 'y' and os.path.isfile(RESULT_FILE_PATH):
-    #     os.remove(RESULT_FILE_PATH)
-    # quit = input("- Do you want to exit the program ?  y/n\n\t>> ")
-    # if quit == 'y':
-    #     exit("Bye and good luck for your job search !")
