@@ -3,9 +3,7 @@ from bs4 import BeautifulSoup
 import requests
 import urllib
 import re
-from datetime import datetime
 import os
-import pandas as pd
 
 RESULT_FILE_PATH='results.json'
 
